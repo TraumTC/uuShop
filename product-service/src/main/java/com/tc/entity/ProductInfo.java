@@ -30,13 +30,11 @@ public class ProductInfo implements Serializable {
 
     @TableId(value = "product_id", type = IdType.AUTO)
     private Integer productId;
-
     /**
      * 商品名称
      */
     @TableField("product_name")
     private String productName;
-
     /**
      * 商品单价
      */

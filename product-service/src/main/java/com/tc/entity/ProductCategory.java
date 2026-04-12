@@ -29,25 +29,21 @@ public class ProductCategory implements Serializable {
 
     @TableId(value = "category_id", type = IdType.AUTO)
     private Integer categoryId;
-
     /**
      * 类目名称
      */
     @TableField("category_name")
     private String categoryName;
-
     /**
      * 类目编号
      */
     @TableField("category_type")
     private Integer categoryType;
-
     /**
      * 创建时间
      */
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
-
     /**
      * 修改时间
      */
