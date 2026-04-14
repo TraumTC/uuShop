@@ -11,11 +11,12 @@
     </parent>
 
     <artifactId>common-service</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>../product-service</module>
-        <module>../order-service</module>
-    </modules>
+<!--    <packaging>pom</packaging>-->
+<!--    <modules>-->
+<!--        <module>../product-service</module>-->
+<!--        <module>../order-service</module>-->
+<!--        <module>../account-service</module>-->
+<!--    </modules>-->
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -30,15 +31,15 @@
         </dependency>
     </dependencies>
 
-     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+<!--     <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <skip>true</skip>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 </project>

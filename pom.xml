@@ -23,7 +23,11 @@
 	</developers>
     <modules>
         <module>base-service</module>
+        <module>common-service</module>
         <module>repository-service</module>
+        <module>product-service</module>
+        <module>order-service</module>
+        <module>account-service</module>
     </modules>
     <scm>
 		<connection/>

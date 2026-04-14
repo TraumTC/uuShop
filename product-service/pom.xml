@@ -5,9 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.tc</groupId>
-        <artifactId>common-service</artifactId>
+        <artifactId>base-service</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../common-service/pom.xml</relativePath>
     </parent>
 
     <artifactId>product-service</artifactId>
