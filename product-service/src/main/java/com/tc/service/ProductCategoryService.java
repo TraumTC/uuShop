@@ -3,6 +3,7 @@ package com.tc.service;
 import com.tc.entity.ProductCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tc.vo.CategoryVo;
+import com.tc.vo.ResultVO;
 import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 
 import java.util.List;
@@ -16,6 +17,6 @@ import java.util.List;
  * @since 2026-04-11
  */
 public interface ProductCategoryService extends IService<ProductCategory> {
-    public List<CategoryVo> categoryList();
+    public ResultVO categoryList();
 
 }

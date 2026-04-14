@@ -10,6 +10,7 @@ import com.tc.service.ProductCategoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tc.vo.CategoryVo;
 import com.tc.vo.InfoVo;
+import com.tc.vo.ResultVO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,8 @@ public class ProductCategoryServiceImpl extends ServiceImpl<ProductCategoryMappe
     @Resource
     private ProductInfoMapper productInfoMapper;
     @Override
-    public List<CategoryVo> categoryList() {
+    public ResultVO categoryList() {
+        ResultVO resultVO = new ResultVO();
         List<ProductCategory> productCategoryList = this.productCategoryMapper.selectList(null);
         List<CategoryVo> categoryVoList = new ArrayList<>();
         for (ProductCategory productCategory : productCategoryList) {
@@ -48,6 +50,7 @@ public class ProductCategoryServiceImpl extends ServiceImpl<ProductCategoryMappe
             List<ProductInfo> productInfoList = this.productInfoMapper.selectList(queryWrapper);
             for (ProductInfo productInfo : productInfoList) {
                 InfoVo infoVo = new InfoVo();
+//                两个对象 将productInfo对象中的属性复制给infoVo对象中的同名属性
                 BeanUtils.copyProperties(productInfo,infoVo);
 //                infoVo.setId(productInfo.getProductId());
 //                infoVo.setName(productInfo.getProductName());
@@ -60,9 +63,11 @@ public class ProductCategoryServiceImpl extends ServiceImpl<ProductCategoryMappe
             }
             categoryVo.setGoods(infoVoList);
             categoryVoList.add(categoryVo);
+
+            resultVO.setCode(0);
+            resultVO.setMsg("成功");
+            resultVO.setData(categoryVoList);
         }
-
-
-        return categoryVoList;
+        return resultVO;
     }
 }

@@ -1,7 +1,6 @@
 package com.tc.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -17,56 +16,62 @@ import java.util.Date;
 
 /**
  * <p>
- * 商品表
+ * 订单表
  * </p>
  *
  * @author tc
  * @since 2026-04-13
  */
 @Data
-@TableName("product_info")
-public class ProductInfo implements Serializable {
+@TableName("order_master")
+public class OrderMaster implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "product_id", type = IdType.AUTO)
-    private Integer productId;
+    @TableId("order_id")
+    private String orderId;
 
     /**
-     * 商品名称
+     * 买家名字
      */
-    @TableField("product_name")
-    private String productName;
+    @TableField("buyer_name")
+    private String buyerName;
 
     /**
-     * 商品单价
+     * 买家电话
      */
-    @TableField("product_price")
-    private BigDecimal productPrice;
+    @TableField("buyer_phone")
+    private String buyerPhone;
 
     /**
-     * 库存
+     * 买家地址
      */
-    @TableField("product_stock")
-    private Integer productStock;
+    @TableField("buyer_address")
+    private String buyerAddress;
 
     /**
-     * 描述
+     * 买家id
      */
-    @TableField("product_description")
-    private String productDescription;
+    @TableField("buyer_openid")
+    private Integer buyerOpenid;
 
     /**
-     * 小图
+     * 订单总金额
      */
-    @TableField("product_icon")
-    private String productIcon;
+    @TableField("order_amount")
+    private BigDecimal orderAmount;
 
     /**
-     * 类目编号
+     * 订单状态，默认0新下单,1完成，2取消
      */
-    @TableField("category_type")
-    private Integer categoryType;
+    @TableField("order_status")
+    private Integer orderStatus;
+
+    /**
+     * 支付状态，默认0未支付，1已支付
+     */
+    @TableField("pay_status")
+    private Integer payStatus;
 
     /**
      * 创建时间
@@ -79,10 +84,4 @@ public class ProductInfo implements Serializable {
      */
     @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
-
-    /**
-     * 商品状态，1正常0下架
-     */
-    @TableField("product_status")
-    private Integer productStatus;
 }

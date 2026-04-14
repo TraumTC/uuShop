@@ -12,5 +12,4 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2026-04-11
  */
 public interface ProductInfoService extends IService<ProductInfo> {
-
 }

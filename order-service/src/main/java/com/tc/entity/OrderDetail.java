@@ -1,47 +1,61 @@
 package com.tc.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
  * <p>
- * 类目表
+ * 订单详情表
  * </p>
  *
  * @author tc
  * @since 2026-04-13
  */
 @Data
-@TableName("product_category")
-public class ProductCategory implements Serializable {
+@TableName("order_detail")
+public class OrderDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "category_id", type = IdType.AUTO)
-    private Integer categoryId;
+    @TableId("detail_id")
+    private String detailId;
+
+    @TableField("order_id")
+    private String orderId;
+
+    @TableField("product_id")
+    private Integer productId;
 
     /**
-     * 类目名称
+     * 商品名称
      */
-    @TableField("category_name")
-    private String categoryName;
+    @TableField("product_name")
+    private String productName;
 
     /**
-     * 类目编号
+     * 商品单价
      */
-    @TableField("category_type")
-    private Integer categoryType;
+    @TableField("product_price")
+    private BigDecimal productPrice;
+
+    /**
+     * 商品数量
+     */
+    @TableField("product_quantity")
+    private Integer productQuantity;
+
+    /**
+     * 商品小图
+     */
+    @TableField("product_icon")
+    private String productIcon;
 
     /**
      * 创建时间
