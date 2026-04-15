@@ -1,4 +1,4 @@
-package com.tc.from;
+package com.tc.form;
 
 import lombok.Data;
 
