@@ -5,10 +5,10 @@ import lombok.Data;
 
 import java.util.List;
 @Data
-public class CategoryVo {
+public class ProductCategoryVo {
     @JsonProperty("name")
     private String categoryName;
     @JsonProperty("type")
     private Integer categoryType;
-    private List<InfoVo> goods;
+    private List<ProductInfoVo> goods;
 }

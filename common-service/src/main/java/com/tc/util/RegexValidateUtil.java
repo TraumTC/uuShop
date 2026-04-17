@@ -40,7 +40,8 @@ public class RegexValidateUtil {
      * @return
      */
     public static boolean checkMobile(String mobile) {
-        String regex = "^((19[0-9])|(17[0-9])|(13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\d{8}$";
+//        String regex = "^((19[0-9])|(17[0-9])|(13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\d{8}$";
+        String regex = "^1[3-9]\\d{9}$";
         return check(mobile, regex);
     }
 

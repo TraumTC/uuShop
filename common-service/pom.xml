@@ -11,12 +11,6 @@
     </parent>
 
     <artifactId>common-service</artifactId>
-<!--    <packaging>pom</packaging>-->
-<!--    <modules>-->
-<!--        <module>../product-service</module>-->
-<!--        <module>../order-service</module>-->
-<!--        <module>../account-service</module>-->
-<!--    </modules>-->
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

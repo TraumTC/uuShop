@@ -1,0 +1,18 @@
+server:
+  port: 8084
+aliyun:
+  sms:
+#这里需要密匙
+    endpoint: dypnsapi.aliyuncs.com
+    sign-name: 速通互联验证码
+    template-code: 100001
+
+spring:
+  application:
+    name: sms-service
+  data:
+    redis:
+      host: 192.168.88.144
+      port: 6379
+      database: 0
+

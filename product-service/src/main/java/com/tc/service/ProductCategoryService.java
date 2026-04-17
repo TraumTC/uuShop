@@ -2,11 +2,7 @@ package com.tc.service;
 
 import com.tc.entity.ProductCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.tc.vo.CategoryVo;
 import com.tc.vo.ResultVO;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
-
-import java.util.List;
 
 /**
  * <p>

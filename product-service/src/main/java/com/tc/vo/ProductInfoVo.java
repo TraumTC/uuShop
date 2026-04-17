@@ -3,10 +3,9 @@ package com.tc.vo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import javax.swing.*;
 import java.math.BigDecimal;
 @Data
-public class InfoVo {
+public class ProductInfoVo {
     @JsonProperty("id")
     private Integer productId;
     @JsonProperty("name")
