@@ -135,10 +135,20 @@ public class BuyerOrderController {
         queryWrapper.eq("buyer_openid",buyerId);
         OrderMaster orderMaster = this.orderMasterService.getOne(queryWrapper);
         if(orderMaster == null) throw new ShopException(ResponseEnum.ORDER_NULL.getMsg());
-        if(! orderMaster.getOrderStatus().equals(0)) throw new ShopException(ResponseEnum.ORDER_STATUS_ERROR.getMsg());
+        if( orderMaster.getOrderStatus().equals(1)) throw new ShopException(ResponseEnum.ORDER_CANCEL_FINISHED.getMsg());
+        if( !orderMaster.getOrderStatus().equals(0)) throw new ShopException(ResponseEnum.ORDER_STATUS_ERROR.getMsg());
         orderMaster.setOrderStatus(2);
         boolean flag = this.orderMasterService.updateById(orderMaster);
         if(!flag) throw new ShopException(ResponseEnum.ORDER_CANCEL_ERROR.getMsg());
+//        恢复库存
+        QueryWrapper<OrderDetail> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.eq("order_id",orderMaster.getOrderId());
+        List<OrderDetail> orderDetailList = this.orderDetailService.list(queryWrapper1);
+        for(OrderDetail orderDetail : orderDetailList){
+            Integer productId = orderDetail.getProductId();
+            Integer productQuantity = orderDetail.getProductQuantity();
+            boolean flag2 = this.productFeign.subStockById(productId, -productQuantity);
+        }
         return ResultVOUtil.success(null);
     }
     @PutMapping("/finish/{orderId}")
@@ -161,8 +171,9 @@ public class BuyerOrderController {
         queryWrapper.eq("order_id",orderId);
         OrderMaster orderMaster = this.orderMasterService.getOne(queryWrapper);
         if(orderMaster == null) throw new ShopException(ResponseEnum.ORDER_NULL.getMsg());
-        if(! orderMaster.getOrderStatus().equals(0)) throw new ShopException(ResponseEnum.ORDER_STATUS_ERROR.getMsg());
-        if( orderMaster.getPayStatus().equals(1)) throw new ShopException(ResponseEnum.ORDER_PAY_ERROR.getMsg());
+        if(orderMaster.getOrderStatus().equals(2)) throw new ShopException(ResponseEnum.ORDER_CANCEL_PAY_ERROR.getMsg());
+        if(orderMaster.getOrderStatus().equals(1)) throw new ShopException(ResponseEnum.ORDER_FINISH_PAY_ERROR.getMsg());
+        if(orderMaster.getPayStatus().equals(1)) throw new ShopException(ResponseEnum.ORDER_PAY_ERROR.getMsg());
         orderMaster.setPayStatus(1);
         boolean flag = this.orderMasterService.updateById(orderMaster);
         if(!flag) throw new ShopException(ResponseEnum.ORDER_PAY_FAIL.getMsg());

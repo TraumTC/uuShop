@@ -1,0 +1,24 @@
+package com.tc.vo;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Map;
+@Data
+public class SellerFindIdVO {
+    private Boolean status;
+    @JsonProperty("id")
+    private Integer productId;
+    @JsonProperty("name")
+    private String productName;
+    @JsonProperty("price")
+    private BigDecimal productPrice;
+    @JsonProperty("stock")
+    private Integer productStock;
+    @JsonProperty("description")
+    private String productDescription;
+    @JsonProperty("icon")
+    private String productIcon;
+    private Map<String,Integer> category;
+}
