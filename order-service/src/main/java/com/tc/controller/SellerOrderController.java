@@ -127,7 +127,20 @@ public class SellerOrderController {
     }
     @PutMapping("/stackedLineSale")
     public ResultVO stackedLineSale() {
-
-        return  ResultVOUtil.success(null);
+        StackedLineVO sVO = new StackedLineVO();
+        List<String> names = this.orderDetailMapper.getNames();
+        List<String> dates = this.orderDetailMapper.getDate();
+        sVO.setNames(names);
+        sVO.setDates(dates);
+        List<StackedLineInnerVO> datas = new ArrayList<>();
+        for(String name : names) {
+            List<Integer> data = this.orderDetailMapper.getData(name);
+            StackedLineInnerVO InnerVO = new StackedLineInnerVO();
+            InnerVO.setName(name);
+            InnerVO.setData(data);
+            datas.add(InnerVO);
+        }
+        sVO.setDatas(datas);
+        return  ResultVOUtil.success(sVO);
     }
 }

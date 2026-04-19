@@ -8,5 +8,5 @@ import java.util.List;
 public class StackedLineVO {
     private List<String> names;
     private List<String> dates;
-    private List<StackerLineInnerVO> datas;
+    private List<StackedLineInnerVO> datas;
 }

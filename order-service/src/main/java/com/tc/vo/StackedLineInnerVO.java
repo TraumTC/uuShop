@@ -5,9 +5,9 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class StackerLineInnerVO {
+public class StackedLineInnerVO {
     private String name;
-    private String type;
-    private String stack;
+    private String type = "line";
+    private String stack = "销量";
     private List<Integer> data;
 }
