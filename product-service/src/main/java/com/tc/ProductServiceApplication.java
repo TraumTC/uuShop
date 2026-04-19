@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @MapperScan("com.tc.mapper")
-
+//@EnableKnife4j
 public class ProductServiceApplication {
     public static void main(String[] args) {
         org.springframework.boot.SpringApplication.run(ProductServiceApplication.class, args);

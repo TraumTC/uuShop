@@ -5,7 +5,6 @@ import com.tc.excepion.ShopException;
 import com.tc.result.ResponseEnum;
 import com.tc.service.ProductCategoryService;
 import com.tc.service.ProductInfoService;
-import com.tc.util.ResultVOUtil;
 import com.tc.vo.ResultVO;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ public class BuyerProductController {
     @GetMapping("/list")
     public ResultVO list() {
 
-        return ResultVOUtil.success(this.productCategoryService.categoryList());
+        return this.productCategoryService.categoryList();
     }
 
     @GetMapping("/findPriceById/{id}")
