@@ -91,7 +91,7 @@ public class SellerOrderController {
         if(updateStatus) throw new ShopException(ResponseEnum.ORDER_FINISH_ERROR.getMsg());
         return ResultVOUtil.success(null);
     }
-    @PutMapping("/barSale")
+    @GetMapping("/barSale")
     public ResultVO barSale() {
         List<BarData> barData = this.orderDetailMapper.barSale();
         BarVO barVO = new BarVO();
@@ -109,7 +109,7 @@ public class SellerOrderController {
         barVO.setValues(values);
         return  ResultVOUtil.success(barVO);
     }
-    @PutMapping("/basicLineSale")
+    @GetMapping("/basicLineSale")
     public ResultVO basicLineSale() {
         List<BasicLineData> basicLineData = this.orderDetailMapper.basicLine();
         BasicLineVO basicLineVO = new BasicLineVO();
@@ -125,7 +125,7 @@ public class SellerOrderController {
         basicLineVO.setValues(values);
         return  ResultVOUtil.success(basicLineVO);
     }
-    @PutMapping("/stackedLineSale")
+    @GetMapping("/stackedLineSale")
     public ResultVO stackedLineSale() {
         StackedLineVO sVO = new StackedLineVO();
         List<String> names = this.orderDetailMapper.getNames();

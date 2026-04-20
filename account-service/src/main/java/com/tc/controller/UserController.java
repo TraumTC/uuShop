@@ -14,6 +14,7 @@ import com.tc.util.ResultVOUtil;
 import com.tc.vo.ResultVO;
 import com.tc.vo.UserLoginVO;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,9 +80,9 @@ public class UserController {
     }
 
     @GetMapping("/checkToken")
-//    public ResultVO checkToken(HttpServletRequest request){
-    public ResultVO checkToken(String token){
-//        String token = request.getHeader("token");
+    public ResultVO checkToken(HttpServletRequest request){
+//    public ResultVO checkToken(String token){
+        String token = request.getHeader("token");
         boolean flag = JwtUtil.checkToken(token);
         if(!flag) throw new ShopException(ResponseEnum.TOKEN_ERROR.getMsg());
         return ResultVOUtil.success(null);

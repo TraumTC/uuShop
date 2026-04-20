@@ -28,6 +28,7 @@
         <module>product-service</module>
         <module>order-service</module>
         <module>account-service</module>
+        <module>gateway-service</module>
     </modules>
     <scm>
 		<connection/>
