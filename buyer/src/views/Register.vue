@@ -13,6 +13,10 @@ const customer_num = ref('')
 const customer_code = ref('')
 const customer_password = ref('')
 
+// 倒计时相关
+const countdown = ref(0)
+const timer = ref(null)
+
 // 初始化
 store.state.index = 1
 
@@ -23,11 +27,17 @@ const code = () => {
     return
   }
 
+  if (countdown.value > 0) {
+    return
+  }
+
   // 发送验证码请求
   axios.get(store.state.globalhost + 'sms-service/sms/send/' + customer_num.value)
     .then(function (resp) {
       if (resp.code === 0) {
         showToast('短信发送成功')
+        // 开始倒计时
+        startCountdown()
       } else {
         showToast(resp.msg)
       }
@@ -36,6 +46,21 @@ const code = () => {
       console.error('发送验证码失败:', error)
       showToast('发送验证码失败')
     })
+}
+
+// 开始倒计时
+const startCountdown = () => {
+  countdown.value = 60
+  if (timer.value) {
+    clearInterval(timer.value)
+  }
+  timer.value = setInterval(() => {
+    countdown.value--
+    if (countdown.value <= 0) {
+      clearInterval(timer.value)
+      timer.value = null
+    }
+  }, 1000)
 }
 
 // 注册
@@ -99,7 +124,13 @@ const register = () => {
             required
           >
             <template #button>
-              <span class="code-btn" @click="code">发送验证码</span>
+              <span 
+                class="code-btn" 
+                :class="{ 'disabled': countdown > 0 }"
+                @click="code"
+              >
+                {{ countdown > 0 ? `${countdown}s后重新发送` : '发送验证码' }}
+              </span>
             </template>
           </van-field>
           <van-field
@@ -162,6 +193,12 @@ const register = () => {
   color: #007aff;
   font-size: 14px;
   padding: 0 10px;
+  cursor: pointer;
+}
+
+.code-btn.disabled {
+  color: #999;
+  cursor: not-allowed;
 }
 
 .register-btn {

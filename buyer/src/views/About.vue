@@ -13,7 +13,7 @@ const aboutInfo = ref({
     '个人中心'
   ],
   contact: {
-    phone: '13333333333',
+    phone: '15970599000',
     email: 'service@example.com'
   }
 })

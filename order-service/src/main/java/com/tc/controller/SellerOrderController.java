@@ -54,7 +54,7 @@ public class SellerOrderController {
     }
 
     @PutMapping("/cancel/{orderId}")
-    public ResultVO cancel(@PathVariable("orderId") Integer orderId) {
+    public ResultVO cancel(@PathVariable("orderId") String orderId) {
         QueryWrapper <OrderMaster> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("order_id", orderId);
         OrderMaster orderMaster = this.orderMasterService.getOne(queryWrapper);
@@ -64,7 +64,7 @@ public class SellerOrderController {
         if(status == 2) throw new ShopException(ResponseEnum.ORDER_CANCELED.getMsg());
         orderMaster.setOrderStatus(2);
         boolean updateStatus = this.orderMasterService.updateById(orderMaster);
-        if(updateStatus) throw new ShopException(ResponseEnum.ORDER_CANCEL_ERROR.getMsg());
+        if(!updateStatus) throw new ShopException(ResponseEnum.ORDER_CANCEL_ERROR.getMsg());
 //        恢复库存
         QueryWrapper <OrderDetail> queryWrapper1 = new QueryWrapper<>();
         queryWrapper1.eq("order_id", orderId);
@@ -78,7 +78,7 @@ public class SellerOrderController {
     }
 
     @PutMapping("/finish/{orderId}")
-    public ResultVO finish(@PathVariable("orderId") Integer orderId) {
+    public ResultVO finish(@PathVariable("orderId") String orderId) {
         QueryWrapper <OrderMaster> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("order_id", orderId);
         OrderMaster orderMaster = this.orderMasterService.getOne(queryWrapper);
@@ -86,9 +86,9 @@ public class SellerOrderController {
         Integer status = orderMaster.getOrderStatus();
         if(status == 1) throw new ShopException(ResponseEnum.ORDER_FINISHED.getMsg());
         if(status == 2) throw new ShopException(ResponseEnum.ORDER_FINISH_CANCELED.getMsg());
-        orderMaster.setOrderStatus(2);
+        orderMaster.setOrderStatus(1);
         boolean updateStatus = this.orderMasterService.updateById(orderMaster);
-        if(updateStatus) throw new ShopException(ResponseEnum.ORDER_FINISH_ERROR.getMsg());
+        if(!updateStatus) throw new ShopException(ResponseEnum.ORDER_FINISH_ERROR.getMsg());
         return ResultVOUtil.success(null);
     }
     @GetMapping("/barSale")

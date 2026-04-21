@@ -90,4 +90,6 @@ const axiosPlugin = {
   }
 };
 
-export default axios;
+// 同时导出插件对象和 axios 实例
+export default _axios;
+export { axiosPlugin };

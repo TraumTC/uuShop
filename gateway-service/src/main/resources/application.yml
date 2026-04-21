@@ -11,16 +11,20 @@ spring:
     gateway:
       server:
         webflux:
-          globalcors:
-            cors-configurations:
-              '[/**]':
-                          allowed-origins:
-                            - "http://localhost:5175"
-                            - "http://localhost:5176"
-                          allowed-headers: "*"
-                          allowed-methods: "*"
-                          max-age: 3600
+          # 服务发现（自动拉取服务列表）
           discovery:
             locator:
               enabled: true
+              lower-case-service-id: true  # 推荐加上，服务名转小写
+          # 全局跨域配置
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowed-origins:
+                  - "http://localhost:5175"
+                  - "http://localhost:5176"
+                allowed-methods: "*"
+                allowed-headers: "*"
+                allow-credentials: true  # 允许携带Cookie/Token
+                max-age: 3600
 

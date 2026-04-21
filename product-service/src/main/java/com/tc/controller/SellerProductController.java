@@ -1,5 +1,6 @@
 package com.tc.controller;
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tc.entity.ProductCategory;
@@ -16,7 +17,12 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -238,14 +244,57 @@ public class SellerProductController {
 
         return ResultVOUtil.success(null);
     }
-    @PutMapping("/export")
-    public void export(HttpServletResponse response) {
+    @GetMapping("/export")
+    public void exportData(HttpServletResponse response, @RequestParam(required = false) String token) {
+        try {
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("utf-8");
+            response.setHeader("Cache-Control", "no-cache");
+            String fileName = URLEncoder.encode("商品信息", "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + fileName + ".xlsx");
 
+            List<ProductExcelVO> productExcelVOList = productInfoService.productExcelVOList();
 
+            // 原生判断集合为空
+            if (productExcelVOList == null || productExcelVOList.isEmpty()) {
+                productExcelVOList = new ArrayList<>();
+            }
+            try (OutputStream out = response.getOutputStream()) {
+                EasyExcel.write(out, ProductExcelVO.class)
+                        .sheet("商品信息")
+                        .doWrite(productExcelVOList);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    @PutMapping("/import")
-    public ResultVO importExcel(HttpServletResponse response) {
-
-        return ResultVOUtil.success(null);
+   @PostMapping("/import")
+    public ResultVO importData(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String token) {
+        if (file.isEmpty()) {
+            return ResultVOUtil.fail("请上传文件");
+        }
+        String fileName = file.getOriginalFilename();
+        if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls")) {
+            return ResultVOUtil.fail("请上传 Excel 文件");
+        }
+        List<ProductInfo> productInfoList;
+        try (InputStream in = file.getInputStream()) {
+            productInfoList = productInfoService.excleToProductInfoList(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResultVOUtil.fail("解析Excel失败");
+        }
+        // 原生判断空集合
+        if (productInfoList == null || productInfoList.isEmpty()) {
+            return ResultVOUtil.fail("Excel中无有效数据");
+        }
+        try {
+            boolean result = productInfoService.saveBatch(productInfoList);
+            return result ? ResultVOUtil.success("导入成功") : ResultVOUtil.fail("导入失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultVOUtil.fail("保存数据失败");
+        }
     }
 }

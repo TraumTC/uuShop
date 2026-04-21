@@ -13,6 +13,7 @@ import com.tc.mapper.ProductInfoMapper;
 import com.tc.result.ResponseEnum;
 import com.tc.service.OrderDetailService;
 import com.tc.service.OrderMasterService;
+import com.tc.service.impl.WebSocket;
 import com.tc.util.ResultVOUtil;
 import com.tc.vo.BuyerOrderDetailVO;
 import com.tc.vo.BuyerOrderMasterVO;
@@ -47,11 +48,15 @@ public class BuyerOrderController {
     @Resource
     private OrderDetailService orderDetailService;
 
+    @Resource
+    private WebSocket webSocket;
+
     @PostMapping("/create")
     public ResultVO create(@RequestBody BuyerOrderForm from){
 //        总订单
         List<BuyerOrderInnerForm> items = from.getItems();
         BigDecimal orderAmount = new BigDecimal(0);
+
 //        算总价
         for (BuyerOrderInnerForm item : items) {
             Integer productId = item.getProductId();
@@ -89,6 +94,7 @@ public class BuyerOrderController {
         }
         Map map=new HashMap<>();
         map.put("orderId",orderMaster.getOrderId());
+        this.webSocket.sendMessage("有新的订单");
         return ResultVOUtil.success(map);
     }
     @GetMapping("/list/{buyerId}/{page}/{size}")

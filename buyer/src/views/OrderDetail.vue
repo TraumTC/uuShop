@@ -104,65 +104,63 @@ const toPay = () => {
 
 <template>
   <div class="order-detail-container">
-    <van-card v-if="data" class="order-card">
-      <van-cell-group>
-        <van-cell title="订单号" :value="data.orderId" />
-        <van-cell title="收货地址">
-          <template #default>
-            <div class="address-info">
-              <div>{{ data.buyerAddress }}</div>
-              <div>{{ data.buyerName }} {{ data.buyerPhone }}</div>
-            </div>
-          </template>
-        </van-cell>
-        <van-cell title="订单价格" :value="data.orderAmount + '元'" />
-        <van-cell title="下单时间" :value="dateFormat(data.createTime)" />
-        <van-cell title="订单状态">
-          <template #default>
-            <span class="order-status">{{ transformOrderStatus(data.orderStatus) }}</span>
-          </template>
-        </van-cell>
-        <van-cell title="支付状态">
-          <template #default>
-            <span class="order-status">{{ transformPayStatus(data.payStatus) }}</span>
-          </template>
-        </van-cell>
-        <van-cell title="订单商品">
-          <template #default>
-            <div class="order-goods" v-for="item in data.orderDetailList" :key="item.productId">
-              <div class="goods-image">
-                <img :src="item.productIcon" :alt="item.productName" />
-              </div>
-              <div class="goods-name">{{ item.productName }}</div>
-              <div class="goods-quantity">
-                <van-icon name="close" size="16" />
-                {{ item.productQuantity }}
-              </div>
-              <div class="goods-price">￥{{ item.productPrice * item.productQuantity }}</div>
-            </div>
-          </template>
-        </van-cell>
-      </van-cell-group>
+    <div v-if="data" class="order-card">
+      <div class="order-info">
+        <div class="info-item">
+          <span class="info-label">订单号</span>
+          <span class="info-value">{{ data.orderId }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">收货地址</span>
+          <div class="info-value address-info">
+            <div>{{ data.buyerAddress }}</div>
+            <div>{{ data.buyerName }} {{ data.buyerPhone }}</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <span class="info-label">订单价格</span>
+          <span class="info-value">{{ data.orderAmount }}元</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">下单时间</span>
+          <span class="info-value">{{ dateFormat(data.createTime) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">订单状态</span>
+          <span class="info-value status-new">{{ transformOrderStatus(data.orderStatus) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">支付状态</span>
+          <span class="info-value status-unpaid">{{ transformPayStatus(data.payStatus) }}</span>
+        </div>
+      </div>
+      
+      <div class="order-goods" v-for="item in data.orderDetailList" :key="item.productId">
+        <div class="goods-image">
+          <img :src="item.productIcon" :alt="item.productName" />
+        </div>
+        <div class="goods-name">{{ item.productName }}</div>
+        <div class="goods-quantity">× {{ item.productQuantity }}</div>
+        <div class="goods-price">￥{{ item.productPrice * item.productQuantity }}</div>
+      </div>
       
       <div class="action-buttons">
-        <van-button 
-          type="primary" 
-          block 
+        <div 
+          class="button pay-button" 
           @click="toPay()"
           v-show="payStatus == 0 && orderStatus == 0"
         >
           确认付款
-        </van-button>
-        <van-button 
-          type="warning" 
-          block 
+        </div>
+        <div 
+          class="button cancel-button" 
           @click="cancelOrder()"
           v-show="orderStatus == 0"
         >
           取消订单
-        </van-button>
+        </div>
       </div>
-    </van-card>
+    </div>
     <div v-else class="loading">
       <van-loading type="spinner" color="#1989fa" />
     </div>
@@ -173,29 +171,66 @@ const toPay = () => {
 .order-detail-container {
   min-height: 100vh;
   background-color: #f5f5f5;
-  padding: 10px;
+  padding: 0;
 }
 
 .order-card {
+  background-color: #fff;
+  margin: 10px;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.order-info {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #333;
+  text-align: right;
 }
 
 .address-info {
   text-align: right;
   line-height: 1.4;
+  flex: 1;
+  margin-left: 20px;
 }
 
-.order-status {
-  font-weight: bold;
+.status-new {
   color: red;
+  font-weight: bold;
+}
+
+.status-unpaid {
+  color: red;
+  font-weight: bold;
 }
 
 .order-goods {
   display: flex;
   align-items: center;
-  margin: 10px 0;
-  padding: 10px 0;
+  padding: 15px;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -204,43 +239,64 @@ const toPay = () => {
 }
 
 .goods-image {
-  width: 40px;
-  height: 40px;
-  margin-right: 10px;
+  width: 80px;
+  height: 80px;
+  margin-right: 15px;
+  flex-shrink: 0;
 }
 
 .goods-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 4px;
 }
 
 .goods-name {
   flex: 1;
-  line-height: 40px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
 }
 
 .goods-quantity {
-  width: 60px;
-  line-height: 40px;
-  text-align: center;
+  margin: 0 20px;
+  font-size: 14px;
+  color: #666;
 }
 
 .goods-price {
-  width: 80px;
-  line-height: 40px;
-  text-align: right;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
+  color: #333;
+  flex-shrink: 0;
 }
 
 .action-buttons {
-  margin-top: 20px;
-  padding: 0 15px 15px;
+  padding: 15px;
 }
 
-.action-buttons .van-button {
+.button {
+  display: block;
+  width: 100%;
+  height: 44px;
+  line-height: 44px;
+  text-align: center;
+  border-radius: 8px;
+  font-size: 16px;
   margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pay-button {
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.cancel-button {
+  background-color: #fa8c16;
+  color: #fff;
 }
 
 .loading {
@@ -248,13 +304,5 @@ const toPay = () => {
   justify-content: center;
   align-items: center;
   min-height: 300px;
-}
-
-.van-cell {
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.van-cell:last-child {
-  border-bottom: none;
 }
 </style>

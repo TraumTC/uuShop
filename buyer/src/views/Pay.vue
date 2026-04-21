@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
-import { showToast, showLoading, hideLoading } from 'vant'
+import { showToast } from 'vant'
 import axios from '../plugins/axios'
 
 const router = useRouter()
@@ -21,9 +21,11 @@ onMounted(() => {
 // 付款
 const pay = () => {
   // 显示加载状态
-  showLoading({
+  const loading = showToast({
     message: '正在支付...',
-    forbidClick: true
+    type: 'loading',
+    forbidClick: true,
+    duration: 0
   })
 
   // 获取用户ID和订单ID
@@ -33,7 +35,7 @@ const pay = () => {
   // 发送支付请求
   axios.put(store.state.globalhost + 'order-service/buyer/order/pay/' + userId + '/' + orderId)
     .then(function (resp) {
-      hideLoading()
+      loading.close()
       showToast('支付成功')
       setTimeout(() => {
         // 跳转到订单详情页
@@ -41,7 +43,7 @@ const pay = () => {
       }, 500)
     })
     .catch(function (error) {
-      hideLoading()
+      loading.close()
       console.error('支付失败:', error)
       showToast('支付失败')
     })
@@ -50,30 +52,22 @@ const pay = () => {
 
 <template>
   <div class="pay-container">
-    <van-card class="pay-card">
-      <van-cell-group>
-        <van-cell title="付款" />
-        <van-cell title="支付方式">
-          <template #default>
-            <div class="pay-method">
-              <van-icon name="wechat" size="24" color="#07C160" />
-              <span>微信支付</span>
-            </div>
-          </template>
-        </van-cell>
-      </van-cell-group>
-      
-      <van-cell-group class="pay-amount">
-        <van-field
-          label="金额"
-          v-model="orderAmount"
-          readonly
-        />
-        <div class="pay-btn">
-          <van-button type="primary" block @click="pay()">付款</van-button>
+    <div class="pay-card">
+      <div class="pay-title">付款</div>
+      <div class="pay-item">
+        <span class="pay-label">支付方式</span>
+        <div class="pay-method">
+          <van-icon name="wechat" size="24" color="#07C160" />
         </div>
-      </van-cell-group>
-    </van-card>
+      </div>
+      <div class="pay-item">
+        <span class="pay-label">金额</span>
+        <span class="pay-amount">{{ orderAmount }}</span>
+      </div>
+      <div class="pay-button" @click="pay()">
+        付款
+      </div>
+    </div>
   </div>
 </template>
 
@@ -81,12 +75,39 @@ const pay = () => {
 .pay-container {
   min-height: 100vh;
   background-color: #f5f5f5;
-  padding: 10px;
+  padding: 20px 15px;
 }
 
 .pay-card {
+  background-color: #fff;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pay-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 15px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pay-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pay-item:last-child {
+  border-bottom: none;
+}
+
+.pay-label {
+  font-size: 14px;
+  color: #666;
 }
 
 .pay-method {
@@ -94,25 +115,45 @@ const pay = () => {
   align-items: center;
 }
 
-.pay-method span {
-  margin-left: 10px;
-  font-size: 14px;
-}
-
 .pay-amount {
-  margin-top: 20px;
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
 }
 
-.pay-btn {
-  margin-top: 30px;
-  padding: 0 15px 15px;
+.pay-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #52c41a;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  height: 44px;
+  margin: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.van-cell {
-  border-bottom: 1px solid #f0f0f0;
+.pay-button::after {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  margin-left: 10px;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
 }
 
-.van-cell:last-child {
-  border-bottom: none;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.pay-button:hover {
+  background-color: #73d13d;
 }
 </style>

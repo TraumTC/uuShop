@@ -2,18 +2,18 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { showToast, showLoading, hideLoading } from 'vant'
+import { showToast } from 'vant'
 import axios from '../plugins/axios'
 
 const router = useRouter()
 const store = useStore()
 
 // 表单数据
-const customer_num = ref('13333333332')
+const customer_num = ref('15970599000')
 const customer_password = ref('123456')
 
 // 初始化
-store.state.index = 0
+store.state.index = 1
 
 // 登录
 const login = () => {
@@ -28,9 +28,11 @@ const login = () => {
   }
 
   // 显示加载状态
-  showLoading({
+  const loading = showToast({
     message: '正在登录...',
-    forbidClick: true
+    type: 'loading',
+    forbidClick: true,
+    duration: 0
   })
 
   // 构建登录数据
@@ -42,7 +44,7 @@ const login = () => {
   // 发送登录请求
   axios.get(store.state.globalhost + 'account-service/user/login', { params: user })
     .then(function (response) {
-      hideLoading()
+      loading.close()
       if (response.code === -1) {
         showToast(response.msg)
         return
@@ -55,7 +57,7 @@ const login = () => {
       }
     })
     .catch(function (error) {
-      hideLoading()
+      loading.close()
       console.error('登录失败:', error)
       showToast('登录失败')
     })

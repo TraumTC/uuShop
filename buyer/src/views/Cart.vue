@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { showToast } from 'vant'
@@ -12,8 +12,10 @@ const store = useStore()
 const totalQuantity = ref(0)
 const totalPrice = ref(0)
 const menuIndex = ref(0)
-const logo = ref('../static/logo.jpg')
+const logo = ref('/logo.jpg')
 const data = ref('')
+const cartVisible = ref(false)
+const quantityMap = ref({})
 
 // 生命周期
 onMounted(() => {
@@ -21,20 +23,35 @@ onMounted(() => {
   store.state.selectedArray = []
   
   // 从后端获取商品数据
-  axios.get(store.state.globalhost + 'product-service/buyer/product/list')
+  const apiUrl = 'http://localhost:8086/product-service/buyer/product/list'
+  axios.get(apiUrl)
     .then(function (resp) {
       data.value = resp.data
-      // 初始化商品数量为0
+      // 过滤只显示上架状态的商品
       if (data.value && data.value.length > 0) {
+        data.value = data.value.map(menu => {
+          const filteredGoods = menu.goods.filter(item => {
+            const status = Number(item.status)
+            return status === 1 // 1表示上架状态
+          })
+          return {
+            ...menu,
+            goods: filteredGoods
+          }
+        })
+        // 过滤掉没有商品的分类
+        data.value = data.value.filter(menu => menu.goods.length > 0)
+        // 初始化商品数量为0
         data.value.forEach(menu => {
           menu.goods.forEach(item => {
-            item.quantity = 0
+            quantityMap.value[item.id] = 0
           })
         })
+      } else {
+        showToast('暂无商品数据')
       }
     })
     .catch(function (error) {
-      console.error('获取商品数据失败:', error)
       showToast('获取商品数据失败')
     })
 })
@@ -53,46 +70,61 @@ const clear = () => {
   totalQuantity.value = 0
   totalPrice.value = 0
   
-  // 菜品的数量设置为0
+  // 清空商品数量
   if (data.value && data.value.length > 0) {
     data.value.forEach(item => {
       item.goods.forEach(good => {
-        good.quantity = 0
+        quantityMap.value[good.id] = 0
       })
     })
   }
   
   // 清空已选数组
   store.state.selectedArray = []
+  
+  // 隐藏购物车
+  cartVisible.value = false
+}
+
+// 切换购物车显示状态
+const toggleCart = () => {
+  cartVisible.value = !cartVisible.value
 }
 
 // 更改商品数量
 const changeQuantity = (item, type) => {
   switch (type) {
     case "minus":
-      if (item.quantity === 0) return
-      item.quantity--
+      if (quantityMap.value[item.id] === 0) return
+      quantityMap.value[item.id]--
       totalQuantity.value--
-      totalPrice.value -= item.price
+      totalPrice.value = parseFloat((totalPrice.value - item.price).toFixed(2))
       
       // 更新已选数组
       for (let i = 0; i < store.state.selectedArray.length; i++) {
         if (item.id === store.state.selectedArray[i].productId) {
-          store.state.selectedArray[i].productQuantity = item.quantity
-          if (item.quantity === 0) {
+          store.state.selectedArray[i].productQuantity = quantityMap.value[item.id]
+          if (quantityMap.value[item.id] === 0) {
             store.state.selectedArray.splice(i, 1)
           }
-          return
+          break
         }
+      }
+      
+      // 当商品数量为0时隐藏购物车
+      if (totalQuantity.value === 0) {
+        cartVisible.value = false
       }
       break
     case "plus":
-      item.quantity++
-      if (item.quantity <= item.stock) {
+      quantityMap.value[item.id]++
+      if (quantityMap.value[item.id] <= item.stock) {
         totalQuantity.value++
-        totalPrice.value += item.price
+        totalPrice.value = parseFloat((totalPrice.value + item.price).toFixed(2))
+        // 有商品时显示购物车
+        cartVisible.value = true
       } else {
-        item.quantity = item.stock
+        quantityMap.value[item.id] = item.stock
         showToast(item.name + '已被你抢空！')
         return
       }
@@ -100,7 +132,7 @@ const changeQuantity = (item, type) => {
       // 查询是否已经存在
       for (let i = 0; i < store.state.selectedArray.length; i++) {
         if (item.id === store.state.selectedArray[i].productId) {
-          store.state.selectedArray[i].productQuantity = item.quantity
+          store.state.selectedArray[i].productQuantity = quantityMap.value[item.id]
           return
         }
       }
@@ -108,7 +140,7 @@ const changeQuantity = (item, type) => {
       // 添加对象
       store.state.selectedArray.push({
         productId: item.id,
-        productQuantity: item.quantity
+        productQuantity: quantityMap.value[item.id]
       })
       break
   }
@@ -119,60 +151,58 @@ const changeQuantity = (item, type) => {
      <div class="mui-content"> 
          <div><img :src="logo" alt="" class="logo"/></div> 
 
-         <div class="mui-row"> 
-             <!-- 左侧菜单 --> 
-             <div class="mui-col-xs-3" style="border-right: 1px solid #c8c7cc"> 
-                 <div id="segmentedControls" class="mui-segmented-control mui-segmented-control-inverted mui-segmented-control-vertical"> 
-                     <a class="mui-control-item" :class="{'menu-active':menuIndex==index1}" @click="menuIndex = index1" v-for="(item,index1) in data">{{item.name}}</a> 
-                 </div> 
-             </div> 
-             <!-- 商品列表 --> 
-             <div id="segmentedControlContents" class="mui-col-xs-9"> 
-                 <div v-for="(menu,index) in data" v-show="index == menuIndex"> 
-                     <div class="itembox mui-row" v-for="item in menu.goods"> 
-                         <div class="mui-col-xs-3"> 
-                             <img :src="item.icon"/> 
-                         </div> 
-                         <div class="mui-col-xs-9"> 
-                             <div class="item"> 
-                                 <div class="itemmain"> 
-                                     {{item.name}} 
-                                 </div> 
-                                 <div class="itemsub"> 
-                                     {{item.description}} 
-                                 </div> 
-                             </div> 
-                             <div class="operation"> 
-                                 <div class="operationPrice">￥{{item.price}}</div> 
-                                 <div class="operationSelect"> 
-                                     <span class="van-icon van-icon-minus operationMinus" @click="changeQuantity(item,'minus')"></span> 
-                                     <span>{{item.quantity}}</span> 
-                                     <span class="van-icon van-icon-plus operationPlus" @click="changeQuantity(item,'plus')"></span> 
-                                 </div> 
-                             </div> 
-                         </div> 
-                     </div> 
-                 </div> 
-             </div> 
+         <div class="main-container">
+             <!-- 左侧分类 -->
+             <div class="category-sidebar">
+                 <div class="category-item" 
+                     v-for="(item, index) in data" 
+                     :key="index"
+                     :class="{'category-active': menuIndex == index}"
+                     @click="menuIndex = index"
+                 >
+                     {{item.name}}
+                 </div>
+             </div>
+             
+             <!-- 右侧商品列表 -->
+             <div class="goods-container">
+                 <div v-for="(menu, index) in data" v-show="index == menuIndex">
+                     <div class="itembox" v-for="item in menu.goods">
+                         <div class="item-image">
+                             <img :src="item.icon" @error="$event.target.src='data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22 viewBox=%220 0 80 80%22%3E%3Crect width=%2280%22 height=%2280%22 fill=%22%23f5f5f5%22/%3E%3Ctext x=%2240%22 y=%2245%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2212%22%3E图片加载失败%3C/text%3E%3C/svg%3E'"/>
+                         </div>
+                         <div class="item-info">
+                             <div class="item-name">{{item.name}}</div>
+                             <div class="item-desc">{{item.description}}</div>
+                             <div class="item-price">￥{{item.price}}</div>
+                         </div>
+                         <div class="item-operation">
+                             <span class="van-icon van-icon-minus operationMinus" @click="changeQuantity(item,'minus')"></span>
+                             <span class="item-quantity">{{quantityMap[item.id] || 0}}</span>
+                             <span class="van-icon van-icon-plus operationPlus" @click="changeQuantity(item,'plus')"></span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
          </div> 
          <!-- 底部菜单 --> 
-         <div class="cart-box" id="cart-box"> 
+         <div class="cart-box" id="cart-box" v-show="cartVisible || totalQuantity > 0"> 
              <div class="cart-container"> 
-                 <div class="cell1"> 
+                 <div class="cell1" @click="toggleCart"> 
                      <div class="cart-icon-box"> 
                          <span class="van-icon van-icon-cart"> 
                            <span class="van-badge" id="goodsNum">{{totalQuantity}}</span> 
                          </span> 
                      </div> 
                  </div> 
-                 <div class="cell12"> 
-                     ￥<span id="totalMoney">{{totalPrice}}</span> 
+                 <div class="cell12" v-show="cartVisible"> 
+                     ￥<span id="totalMoney">{{totalPrice.toFixed(2)}}</span> 
                  </div> 
-                 <div class="cell2" @click="clear"> 
+                 <div class="cell2" @click="clear" v-show="cartVisible"> 
                      <span class="van-icon van-icon-delete"></span> 
                      清空购物车 
                  </div> 
-                 <div class="cell3" @click="submit"> 
+                 <div class="cell3" @click="submit" v-show="cartVisible"> 
                      <span class="van-icon van-icon-check"></span> 
                      确认下单 
                  </div> 
@@ -194,129 +224,144 @@ const changeQuantity = (item, type) => {
   height: 100%;
 }
 
-/* 左侧菜单样式 */
-.mui-segmented-control {
-  background-color: white;
-}
-
-.mui-segmented-control .mui-control-item {
-  line-height: 50px;
+/* 主容器样式 */
+.main-container {
+  display: flex;
+  height: calc(100vh - 130px);
   width: 100%;
-  color: #666;
 }
 
-.mui-segmented-control.mui-segmented-control-inverted .mui-control-item.mui-active {
-  background-color: #fff;
-}
-
-#segmentedControlContents, #segmentedControls {
-  background-color: white;
-}
-
-#segmentedControlContents {
-  padding: 15px 0 0 10px;
+/* 左侧分类样式 */
+.category-sidebar {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  background-color: #f5f5f5;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 /* 商品列表样式 */
-.mui-row.mui-fullscreen > [class*="mui-col-"] {
-  height: 100%;
+.goods-container {
+  flex: 1;
+  padding: 10px;
+  background-color: #f5f5f5;
+  overflow-y: auto;
 }
 
-.mui-col-xs-3 {
-  overflow-y: auto;
-  height: 100%;
-  border-right: 1px solid #c8c7cc;
+.category-item {
+  padding: 15px 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.category-item:hover {
+  background-color: #e8e8e8;
+}
+
+.category-active {
+  color: #ffb248 !important;
+  background-color: #fff !important;
+  font-weight: bold;
+  border-left: 3px solid #ffb248;
+}
+
+/* 商品列表样式 */
+.goods-container {
+  padding: 10px;
+  background-color: #f5f5f5;
 }
 
 .itembox {
-  margin: 0 0 16px;
-  padding: 0 0 5px;
-  border-bottom: 1px silver solid;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.itembox img {
-  width: 60px;
-  height: 60px;
-  vertical-align: center;
+.item-image {
+  flex: 0 0 80px;
+  margin-right: 10px;
 }
 
-.item {
-  width: 250px;
-  height: 40px;
-  text-align: left;
+.item-image img {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
 }
 
-.itemmain {
-  font-size: 14px;
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 16px;
   font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.itemsub {
-  font-size: 13px;
-  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+.item-desc {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 操作区域样式 */
-.operation {
-  width: 220px;
-  height: 20px;
-  margin-top: 3px;
-}
-
-.operationPrice {
-  float: left;
-  width: 50px;
-  height: 100%;
+.item-price {
   font-size: 18px;
   font-weight: bold;
-  color: red;
+  color: #ff4d4f;
 }
 
-.operationType {
-  float: left;
-  position: relative;
-  left: 10px;
-  width: 60px;
-  height: 100%;
+.item-operation {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
 }
 
-.operationSelect {
-  float: left;
-  width: 110px;
-  height: 100%;
-  position: relative;
-  left: 10px;
+.item-quantity {
+  margin: 0 15px;
+  font-size: 16px;
+  min-width: 20px;
+  text-align: center;
 }
 
 .operationMinus {
-  color: red;
-  float: left;
-  margin-left: 10px;
-  font-weight: bold;
+  color: #ff4d4f;
+  font-size: 20px;
   cursor: pointer;
 }
 
 .operationPlus {
-  color: green;
-  float: right;
-  margin-right: 15px;
-  font-weight: bold;
+  color: #52c41a;
+  font-size: 20px;
   cursor: pointer;
-}
-
-/* 菜单激活状态 */
-.menu-active {
-  color: red;
-  background-color: #c8c7cc;
 }
 
 /* 底部购物车样式 */
 .cart-box {
   position: fixed;
-  bottom: 0;
+  bottom: 50px;
   left: 0;
   right: 0;
-  z-index: 999;
+  z-index: 1000;
+  background-color: #141d27;
 }
 
 .cart-container {
@@ -324,6 +369,7 @@ const changeQuantity = (item, type) => {
   padding: 0;
   margin: 0;
   height: 51px;
+  align-items: center;
 }
 
 .cell1, .cell2, .cell3 {
@@ -331,67 +377,67 @@ const changeQuantity = (item, type) => {
 }
 
 .cell1 {
-  flex: 2;
-  background-color: #141d27;
-  color: #cccccc;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .cell12 {
   flex: 2;
-  background-color: #141d27;
   text-align: center;
-  padding-right: 0;
   color: white;
   font-size: 17px;
   line-height: 51px;
+  transition: all 0.3s ease;
 }
 
 .cell2 {
   flex: 3;
   background-color: #dd524d;
   text-align: center;
-  padding-left: 0;
-  margin: 0;
   color: white;
   font-size: 15px;
   line-height: 51px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .cell3 {
   flex: 3;
   background-color: #007aff;
   text-align: center;
-  padding-right: 10px;
   color: white;
   font-size: 15px;
   line-height: 51px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .cart-icon-box {
-  border: black 5px solid;
+  border: 2px solid #fff;
   border-radius: 50%;
-  height: 50px;
-  width: 50px;
+  height: 40px;
+  width: 40px;
   text-align: center;
-  background-color: #6c757d;
-  z-index: 100;
+  background-color: #ffb248;
   position: relative;
-  top: -15px;
-  left: 10%;
+  top: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cart-icon-box .van-icon {
-  font-size: 24px;
+  font-size: 20px;
   color: #fff;
-  line-height: 40px;
 }
 
 .van-badge {
   position: absolute;
   top: -5px;
-  right: -10px;
+  right: -5px;
   background-color: #ff4d4f;
   color: #fff;
   font-size: 12px;

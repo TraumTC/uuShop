@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { showToast, showLoading, hideLoading } from 'vant'
+import { showToast } from 'vant'
 import axios from '../plugins/axios'
 
 const router = useRouter()
@@ -39,19 +39,27 @@ const submit = () => {
   }
 
   // 显示加载状态
-  showLoading('Loading...')
+  const loading = showToast({
+    message: 'Loading...',
+    type: 'loading',
+    forbidClick: true,
+    duration: 0
+  })
 
   // 提交订单
   axios.post(store.state.globalhost + 'order-service/buyer/order/create', orderForm)
     .then(function(resp) {
-      hideLoading()
+      loading.close()
       if (resp.code === 0) {
-        // 跳转到订单详情页
-        router.push('/orderDetail?orderId=' + resp.data.orderId)
+        showToast('下单成功！')
+        setTimeout(() => {
+          // 跳转到订单详情页
+          router.push('/orderDetail?orderId=' + resp.data.orderId)
+        }, 1000)
       }
     })
     .catch(function(error) {
-      hideLoading()
+      loading.close()
       console.error('提交订单失败:', error)
       showToast('提交订单失败')
     })

@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-import Cart from "../views/Cart"
-import Info from "../views/Info"
-import OrderDetail from "../views/OrderDetail"
-import Pay from "../views/Pay"
-import Order from "../views/Order"
-import Mine from "../views/Mine"
-import About from "../views/About"
-import Login from "../views/Login"
-import Register from "../views/Register"
+import Cart from "../views/Cart.vue"
+import Info from "../views/Info.vue"
+import OrderDetail from "../views/OrderDetail.vue"
+import Pay from "../views/Pay.vue"
+import Order from "../views/Order.vue"
+import Mine from "../views/Mine.vue"
+import About from "../views/About.vue"
+import Login from "../views/Login.vue"
+import Register from "../views/Register.vue"
 import axios from "../plugins/axios"
 import { showToast } from 'vant'
 
@@ -81,7 +81,7 @@ router.beforeEach((to, from, next) => {
     } else {
       // 校验token合法性
       axios({
-        url:'http://localhost:8686/account-service/user/checkToken',
+        url:'http://localhost:8086/account-service/user/checkToken',
         method:'get',
         headers:{
           token:user.token
@@ -90,9 +90,12 @@ router.beforeEach((to, from, next) => {
         if(response.code == -1){
           showToast('登录超时！请重新登录！')
           next({path: '/login'})
+        } else {
+          next()
         }
+      }).catch(() => {
+        next()
       })
-      next()
     }
   }
 })

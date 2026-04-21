@@ -1,18 +1,27 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
 const store = useStore()
+const router = useRouter()
 
 // 计算当前激活的标签
-const activeTab = computed(() => {
-  return store.state.index.toString()
+const activeTab = computed({
+  get: () => {
+    // 索引从0开始，所以需要减1
+    return (store.state.index - 1).toString()
+  },
+  set: (value) => {
+    // 索引从0开始，所以需要加1
+    store.state.index = parseInt(value) + 1
+  }
 })
 
 // 切换标签
 const switchTab = (index, path) => {
   store.state.index = index
-  window.location.href = '#' + path
+  router.push(path)
 }
 
 // 返回
@@ -25,14 +34,14 @@ const back = () => {
   <div id="app">
     <van-nav-bar title="UU优选" id="head" left-text="返回" @click-left="back" />
     <router-view/>
-    <van-tabbar v-model="activeTab" id="bar-tab">
-      <van-tabbar-item icon="shopping-cart" :to="'/cart'" @click="switchTab(1, '/cart')">
+    <van-tabbar v-model="activeTab" style="z-index: 1001;">
+      <van-tabbar-item icon="shopping-cart" :to="'/cart'">
         购买
       </van-tabbar-item>
-      <van-tabbar-item icon="list" :to="'/order'" @click="switchTab(2, '/order')">
+      <van-tabbar-item icon="list" :to="'/order'">
         订单
       </van-tabbar-item>
-      <van-tabbar-item icon="user" :to="'/mine'" @click="switchTab(3, '/mine')">
+      <van-tabbar-item icon="user" :to="'/mine'">
         我的
         <template #badge>
           <van-badge>1</van-badge>
@@ -57,13 +66,7 @@ const back = () => {
   padding-bottom: 50px;
 }
 
-#bar-tab {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-}
+
 
 .van-tabbar-item--active {
   color: rgb(64, 130, 252);

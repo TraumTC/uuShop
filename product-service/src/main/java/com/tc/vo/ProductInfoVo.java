@@ -19,5 +19,8 @@ public class ProductInfoVo {
     private Integer quantity;
     @JsonProperty("stock")
     private Integer productStock;
+//    状态
+    @JsonProperty("status")
+    private Integer productStatus;
 
 }

@@ -2,7 +2,6 @@ package com.tc.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.tc.entity.ProductCategory;
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -14,5 +13,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 
 public interface ProductCategoryMapper extends BaseMapper<ProductCategory> {
-
+ public String findCategoryNameByType(Integer categoryType);
 }

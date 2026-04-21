@@ -20,10 +20,10 @@
 
     <dependencies>
 
-        <dependency>
+       <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
-        </dependency>
+            <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+       </dependency>
 
         <!-- Nacos -->
         <dependency>
