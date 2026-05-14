@@ -280,30 +280,29 @@ cd d:\Javawork\uushop
 
 # 启动所有后端服务（使用Maven）
 mvn clean install
+#不提供具体的业务功能 无需启动
+# 1. Common Service（无端口，被其他服务依赖）
+# 2. Base Service（无端口，被其他服务依赖）
+# 3. Repository Service（无端口，被其他服务依赖）
 
 # 依次启动各服务（推荐按顺序启动）
-
-# 1. 启动 Common Service（无端口，被其他服务依赖）
-# 2. 启动 Base Service（无端口，被其他服务依赖）
-# 3. 启动 Repository Service（无端口，被其他服务依赖）
-
-# 4. 启动 Account Service
+# 1. 启动 Account Service
 cd account-service
 mvn spring-boot:run
 
-# 5. 启动 Product Service
+# 2. 启动 Product Service
 cd ../product-service
 mvn spring-boot:run
 
-# 6. 启动 Order Service
+# 3. 启动 Order Service
 cd ../order-service
 mvn spring-boot:run
 
-# 7. 启动 SMS Service
+# 4. 启动 SMS Service
 cd ../sms-service
 mvn spring-boot:run
 
-# 8. 启动 Gateway Service
+# 5. 启动 Gateway Service
 cd ../gateway-service
 mvn spring-boot:run
 ```
